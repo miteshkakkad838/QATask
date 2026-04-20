@@ -1,57 +1,86 @@
 import { test, expect } from '@playwright/test';
-import Ajv from 'ajv';
+import { ApiHelper } from '../../utils/apihelper.js';
+import { validateSchema } from '../../utils/schemavalidator.js';
 
 test('API Flow Test', async ({ request }) => {
 
-  // Authenticate
-  const loginRes = await request.post('https://dummyjson.com/auth/login', {
-    data: {
-      username: 'emilys',
-      password: 'emilyspass'
-    }
-  });
+  const api = new ApiHelper(request);
 
-  expect(loginRes.status()).toBe(200);
+  // Login with api
+  const login = await api.login();
 
-  const loginBody = await loginRes.json();
-  const token = loginBody.token;
-  const userId = loginBody.id;
+  expect(login.status).toBe(200);
+  expect(login.token).toBeTruthy();
+
+  const token = login.token;
+  const userId = login.userId;
+
+  console.log("Token:", token);
+  console.log("User ID:", userId);
+  console.log("Auth check done");
+  console.log("************************");
 
   // Fetch Cart
-  const cartRes = await request.get(`https://dummyjson.com/carts/user/${userId}`);
-  expect(cartRes.status()).toBe(200);
+  console.log("Fetching Cart...");
 
-  // Add the product
-  const addRes = await request.post('https://dummyjson.com/carts/add', {
-    data: {
-      userId: userId,
-      products: [
-        { id: 1, quantity: 2 }
-      ]
-    }
-  });
+  const cart = await api.getCart(userId, token);
 
-  expect([200, 201]).toContain(addRes.status());
+  expect(cart.status).toBe(200);
+  expect(cart.body).toHaveProperty('carts');
+  expect(cart.body.carts.length).toBeGreaterThan(0);
 
-  const addBody = await addRes.json();
+  const products = cart.body.carts[0].products;
 
-  expect(addBody.products[0].id).toBe(1); //Assertions
-  expect(addBody.products[0].quantity).toBe(2); 
+  expect(products.length).toBeGreaterThan(0);
+  expect(products[0].title).toBeTruthy();
 
-  expect(addBody.total).toBeGreaterThan(0); //Validate the price
+  console.log("Total carts:", cart.body.carts.length);
+  console.log("First product:", products[0].title);
+  console.log("************************");
+
+  // Add Product
+  console.log("Adding Product...");
+
+  const add = await api.addProduct(userId, token, 1, 2);
+
+  expect([200, 201]).toContain(add.status);
+  console.log("Status:", add.status);
+
+  const addBody = add.body;
+
+  expect(addBody.products.length).toBeGreaterThan(0);
+
+  const product = addBody.products[0];
+
+  // Product validation
+  expect(product.id).toBe(1);
+  expect(product.quantity).toBe(2);
+  console.log("Product:", product.title);
+
+  expect(product.total).toBe(product.price * product.quantity);
+
+  // validation of cart total
+  expect(addBody.total).toBe(product.total);
+
+  console.log(
+    `Added Product: ${product.title} | Price: ${product.price} | Qty: ${product.quantity} | Product Total: ${product.total} | Cart Total: ${addBody.total}`
+  );
+
+  // Schema Validation
 
   const schema = {
     type: "object",
+    required: ["id", "products", "total"],
     properties: {
       id: { type: "number" },
       products: { type: "array" },
       total: { type: "number" }
-    },
-    required: ["id", "products", "total"]
+    }
   };
 
-  const ajv = new Ajv();
-  const validate = ajv.compile(schema);
+  const isValid = validateSchema(schema, addBody);
 
-  expect(validate(addBody)).toBe(true);
+  expect(isValid).toBe(true);
+
+  console.log("API flow test completed successfully");
 });
