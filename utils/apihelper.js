@@ -10,12 +10,12 @@ export class ApiHelper {
     async login() {
         const res = await this.request.post(`${this.baseURL}/auth/login`, {
             data: {
-                username: process.env.App_USERNAME,
+                username: process.env.APP_USERNAME,
                 password: process.env.APP_PASSWORD
             }
         });
         console.log("ENV USERNAME:", process.env.APP_PASSWORD);
-        console.log("USERNAME:", process.env.App_USERNAME);
+        console.log("USERNAME:", process.env.APP_USERNAME);
         console.log("PASSWORD:", process.env.APP_PASSWORD);
         const body = await res.json();
 
