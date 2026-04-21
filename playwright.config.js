@@ -38,7 +38,7 @@ export default defineConfig({
 
   /* ----------------------------- REPORTER -------------------------------- */
   reporter: [
-    ['html', { outputFolder: `reports/report-${timestamp}`, open: 'never' }],
+    ['html', { open: 'never' }],
     ['list']
   ],
 
