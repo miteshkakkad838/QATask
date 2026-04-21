@@ -1,0 +1,7 @@
+BASE_URL=https://dummyjson.com
+APP_USERNAME=your_username
+APP_PASSWORD=your_password
+
+STORE_URL=https://www.saucedemo.com
+STORE_USER=standard_user
+STORE_PASSWORD=secret_sauce
