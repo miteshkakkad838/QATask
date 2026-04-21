@@ -14,7 +14,7 @@ export class ApiHelper {
                 password: process.env.APP_PASSWORD
             }
         });
-        console.log("ENV USERNAME:", process.env.App_USERNAME);
+        console.log("ENV USERNAME:", process.env.APP_PASSWORD);
         console.log("USERNAME:", process.env.App_USERNAME);
         console.log("PASSWORD:", process.env.APP_PASSWORD);
         const body = await res.json();
