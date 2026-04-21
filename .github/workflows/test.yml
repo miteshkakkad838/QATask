@@ -21,9 +21,12 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+      
+      - name: Fix Playwright Permissions
+        run: chmod -R 755 node_modules
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: npx playwright@latest install --with-deps
 
       - name: Create .env file
         run: |
