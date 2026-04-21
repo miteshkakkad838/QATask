@@ -43,6 +43,7 @@ export default defineConfig({
 
   /* ------------------------------ USE ------------------------------------- */
   use: {
+    baseURL: process.env.STORE_URL,
     permissions: ['geolocation'],
     trace: 'on',
     screenshot: 'on',
